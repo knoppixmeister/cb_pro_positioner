@@ -7,7 +7,13 @@ Use on your own responsibility.
 
 HOW TO RUN:
 
-java -jar target/app.jar
+- first compile & build application jar:
+
+  mvn clean package
+
+- run app:
+
+  java -jar target/app.jar
 
 By default it runs on 8083 port
 
