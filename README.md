@@ -4,3 +4,15 @@ Helps mananage position's buy/sell. In other words it allows (at least idea is) 
 This is free version (replacement) of such services like 3commas.
 Created "AS IS".
 Use on your own responsibility.
+
+HOW TO RUN:
+
+java -jar target/app.jar
+
+By default it runs on 8083 port
+
+run w/ changed port number (e.g. on 8080):
+
+java -jar -Dserver.port=8080 target/app.jar
+
+
