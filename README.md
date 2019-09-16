@@ -5,6 +5,8 @@ This is free version (replacement) of such services like 3commas.
 Created "AS IS".
 Use on your own responsibility.
 
+Inspired by some ... (NodeJs positions manager - sorry for missed link on guthub project) 
+
 HOW TO RUN:
 
 - first compile & build application jar:
