@@ -15,6 +15,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+		session.sendMessage(new TextMessage("{\"status\":\"ok\",\"message\":\"accepted\"}"));
 	}
 
 	@Override
