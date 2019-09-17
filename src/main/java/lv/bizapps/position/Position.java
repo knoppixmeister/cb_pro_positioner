@@ -1,11 +1,12 @@
 package lv.bizapps.position;
 
+import java.util.Observable;
 import java.util.UUID;
 import org.joda.time.*;
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.positioner.utils.Utils;
 
-public class Position {
+public class Position extends Observable {
 	public double buySum, buyPrice;
 	public double amount;
 	public Double sellPrice;
