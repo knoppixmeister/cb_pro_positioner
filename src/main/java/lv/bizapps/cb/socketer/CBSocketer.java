@@ -17,8 +17,8 @@ public class CBSocketer {
 
 	public final CopyOnWriteArrayList<String> PAIRS = new CopyOnWriteArrayList<>();
 
-	private final LinkedBlockingQueue<String> CB_WS_MESSAGES_QUEUE = new LinkedBlockingQueue<>();
-	private final MessagesParserThread messagesParserThread = new MessagesParserThread();
+	private final LinkedBlockingQueue<String> CB_WS_MESSAGES_QUEUE	=	new LinkedBlockingQueue<>();
+	private final MessagesParserThread messagesParserThread			=	new MessagesParserThread();
 
 	private final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder().retryOnConnectionFailure(true)
 																		.connectTimeout(10, TimeUnit.SECONDS)
