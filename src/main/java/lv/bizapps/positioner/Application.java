@@ -27,7 +27,7 @@ public class Application {
 
 		CB_SOCKETER.addConnectedListener(new ConnectedListener() {
 			@Override
-			public void onConnectedListener() {
+			public void onConnected() {
 				String cmd;
 				try {
 					while(true) {
