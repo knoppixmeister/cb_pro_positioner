@@ -14,9 +14,6 @@ public class RequestPosition {
 
 	// -------------------------------------------------------------------------------
 
-	@Json(name="buy_order_client_oid")
-	public String buyOrderClientOid;
-
 	@Json(name="buy_order_type")
 	public String buyOrderType = "limit";// "market"
 
@@ -38,7 +35,10 @@ public class RequestPosition {
 	@Json(name="sell_amount")
 	public double sellAmount;
 
-	public boolean setOrdersByPostOnly = true;
+	@Json(name="post_only_orders")
+	public boolean postOnlyOrders = true;
+
+	@Json(name="set_orders_until_accepted")
 	public boolean setOrdersUntilAccepted = false;
 
 	@Json(name="set_untill_accepted_price_step")

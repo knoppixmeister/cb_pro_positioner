@@ -1,5 +1,6 @@
 package lv.bizapps.cb.rest;
 
+import java.io.IOException;
 import java.time.*;
 import java.util.List;
 import java.util.*;
@@ -32,6 +33,9 @@ public class CBRest {
 																		.connectTimeout(10, TimeUnit.SECONDS)
 																		.build();
 
+	public CBRest() {
+	}
+
 	public CBRest(String apiKey, String password, String secret) {
 		this.apiKey			= apiKey;
 		this.apiPassword	= password;
@@ -43,6 +47,86 @@ public class CBRest {
 		this.useSanboxApi = useSandboxApi;
 	}
 
+	/*
+		[
+		    {
+		        "id": "BTC-USD",
+		        "base_currency": "BTC",
+		        "quote_currency": "USD",
+		        "base_min_size": "0.001",
+		        "base_max_size": "10000.00",
+		        "quote_increment": "0.01"
+		    }
+		]
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Product> getProducts() {
+		String requestPath = "/products";
+
+		final Request request = new Request.Builder().url((this.useSanboxApi ? CBRest.SANDBOX_REST_API_BASE_URL : CBRest.REST_API_BASE_URL)+requestPath)
+													.build();
+		try {
+			final Response response = HTTP_CLIENT.newCall(request).execute();
+			if(response == null) return null;
+
+			if(response.isSuccessful()) {
+				String json = response.body().string();
+
+				if(json == null || json.isEmpty()) return null;
+				else {
+					return (List<Product>) new Moshi.Builder().build().adapter(Types.newParameterizedType(List.class, Product.class)).fromJson(json);
+				}
+			}
+			else {
+				System.out.println("\r\nCB_REST_RESPONSE_ERROR\r\n");
+
+				System.out.println(response.code()+"|"+response.message());
+				System.out.println(response.body().string());
+			}
+
+			response.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// GET /products/<product-id>/ticker
+	public Ticker getTicker(String productId) {
+		String requestPath = "/products/"+productId+"/ticker";
+
+		final Request request = new Request.Builder().url((this.useSanboxApi ? CBRest.SANDBOX_REST_API_BASE_URL : CBRest.REST_API_BASE_URL)+requestPath)
+													.build();
+		try {
+			final Response response = HTTP_CLIENT.newCall(request).execute();
+			if(response == null) return null;
+
+			if(response.isSuccessful()) {
+				String json = response.body().string();
+
+				if(json == null || json.isEmpty()) return null;
+				else {
+					return new Moshi.Builder().build().adapter(Ticker.class).fromJson(json);
+				}
+			}
+			else {
+				System.out.println("\r\nCB_REST_RESPONSE_ERROR\r\n");
+
+				System.out.println(response.code()+"|"+response.message());
+				System.out.println(response.body().string());
+			}
+
+			response.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	
 	public Order getOrder(String id) {
 		List<Order> orders = orders(id);
 

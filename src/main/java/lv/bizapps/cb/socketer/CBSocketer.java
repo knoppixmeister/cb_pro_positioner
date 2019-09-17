@@ -54,7 +54,7 @@ public class CBSocketer {
 		if(webSocket != null) {
 			webSocket.send(
 				"{\"type\":\"subscribe\",\"channels\":["+
-				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+// BTC-EUR
+				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+
 				"	{\"name\":\"heartbeat\",\"product_ids\":[\""+pair+"\"]}"+
 				"]}"
 			);			
@@ -292,13 +292,13 @@ public class CBSocketer {
 			}
 
 			if(message.contains("\"type\":\"match\"")) {
-				Log.i("\r\nON_QUEUE_MSG: "+message+"\r\n");
+				// Log.i("\r\nON_QUEUE_MSG: "+message+"\r\n");
 
 				try {
 					m = matchJsonAdapter.fromJson(message);
 
 					for(TradeListener tl : tradeListeners) {
-						tl.onNewTrade(m, m.product_id, message);
+						tl.onNewTrade(m, message);
 					}
 
 					for(OrderEventListener oel : orderEventListeners) {
