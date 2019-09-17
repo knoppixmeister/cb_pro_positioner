@@ -19,6 +19,23 @@ public class Application {
 	public static final List<Position> POSITIONS = new CopyOnWriteArrayList<>();
 
 	public static void main(String[] args) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				try {
+					Thread.sleep(200);
+
+					System.out.println("------------------------------------------------\r\nGET OUT OF APP PROC\r\n-------------------------");
+
+					SCANNER.close();
+
+	        		Thread.sleep(200);
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 		SpringApplication.run(Application.class, args);
 
 		CB_SOCKETER.connect();
