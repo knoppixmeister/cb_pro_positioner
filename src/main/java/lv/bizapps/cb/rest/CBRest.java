@@ -18,7 +18,7 @@ public class CBRest {
 		SELL
 	}
 
-	private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+	public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
 	public static final String REST_API_BASE_URL 			=	"https://api.pro.coinbase.com";
 	public static final String SANDBOX_REST_API_BASE_URL	=	"https://api-public.sandbox.pro.coinbase.com";

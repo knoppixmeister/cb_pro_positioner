@@ -4,11 +4,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.joda.time.*;
-
 import com.squareup.moshi.Moshi;
-
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.socketer.Trade;
 import lv.bizapps.positioner.utils.Utils;

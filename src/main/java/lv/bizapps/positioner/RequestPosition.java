@@ -15,6 +15,18 @@ public class RequestPosition {
 	@Json(name="buy_order_price")
 	public double buyOrderPrice;
 
+	@Json(name="set_sell_after_buy")
+	public boolean setSellAfterBuy = true;
+
+	@Json(name="sell_price")
+	public double sellPrice;
+
+	@Json(name="sell_same_amount")
+	public boolean sellSameAmount = true;
+
+	@Json(name="sell_amount")
+	public double sellAmount;
+
 	public boolean setOrdersByPostOnly = true;
 	public boolean setOrdersUntilAccepted = false;
 
