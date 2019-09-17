@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 import com.squareup.moshi.*;
-import lv.bizapps.positioner.utils.Utils;
+import lv.bizapps.positioner.utils.*;
 import okhttp3.*;
 
 public class CBRest {
