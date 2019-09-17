@@ -3,6 +3,17 @@ package lv.bizapps.positioner;
 import com.squareup.moshi.Json;
 
 public class RequestPosition {
+	@Json(name="api_key")
+	public String apiKey;
+
+	@Json(name="api_key")
+	public String apiSecrtet;
+
+	@Json(name="api_passphrase")
+	public String apiPassphrase;
+
+	// -------------------------------------------------------------------------------
+
 	@Json(name="buy_order_client_oid")
 	public String buyOrderClientOid;
 
