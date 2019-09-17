@@ -17,6 +17,9 @@ public class CBSocketer {
 
 	public final CopyOnWriteArrayList<String> PAIRS = new CopyOnWriteArrayList<>();
 
+	private final LinkedBlockingQueue<String> CB_WS_MESSAGES_QUEUE = new LinkedBlockingQueue<>();
+	private final MessagesParserThread messagesParserThread = new MessagesParserThread();
+
 	private final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder().retryOnConnectionFailure(true)
 																		.connectTimeout(10, TimeUnit.SECONDS)
 																		.pingInterval(10, TimeUnit.SECONDS)
@@ -32,6 +35,7 @@ public class CBSocketer {
 	private final List<OrderEventListener> orderEventListeners			=	new CopyOnWriteArrayList<>();
 
 	private final List<ConnectedListener> connectedListeners			=	new CopyOnWriteArrayList<>();
+	private final List<DisconnectedListener> disconnectedListeners		=	new CopyOnWriteArrayList<>();
 
 	private final List<SocketMessageListener> socketMessageListeners	=	new CopyOnWriteArrayList<>();
 
@@ -42,12 +46,15 @@ public class CBSocketer {
 
 	private boolean allowReconnect = true;
 
+	public CBSocketer() {
+		messagesParserThread.start();
+	}
+
 	public void addPair(String pair) {
 		if(webSocket != null) {
 			webSocket.send(
 				"{\"type\":\"subscribe\",\"channels\":["+
-				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+	// BTC-EUR
-				"	{\"name\":\"level2\",\"product_ids\":[\""+pair+"\"]}"+
+				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]}"+// BTC-EUR
 				"]}"
 			);			
 		}
@@ -66,6 +73,7 @@ public class CBSocketer {
 
 		if(webSocket != null) {
 			allowReconnect = false;
+
 			webSocket.close(1000, "CLOSE WS BEFORE CONNECT IF ALREADY CREATED CONNECTION");
 			webSocket = null;
 		}
@@ -85,23 +93,28 @@ public class CBSocketer {
 						e.printStackTrace();
 					}
 
+					socket.send("{\"type\":\"subscribe\",\"channels\":[{\"name\":\"status\"}]}");
+
 					for(String pair : PAIRS) {
 						socket.send(
 							"{\"type\":\"subscribe\",\"channels\":["+
-							"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+	// BTC-EUR
-							"	{\"name\":\"level2\",\"product_ids\":[\""+pair+"\"]},"+
-							"	{\"name\":\"status\"}"+
+							"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+// BTC-EUR
+							"	{\"name\":\"heartbeat\",\"product_ids\":[\""+pair+"\"]}"+
 							"]}"
 						);
 					}
 
 					for(ConnectedListener cl : connectedListeners) {
-						cl.onConnectedListener();
+						cl.onConnected();
 					}
 				}
 
 				public void onClosed(final WebSocket socket, final int code, final String reason) {
 					Log.i("CB_WS_CLOSED. CODE: "+code+"; REASON: '"+reason+"'");
+
+					for(DisconnectedListener dl : disconnectedListeners) {
+						dl.onDisconnected();
+					}
 
 					if(allowReconnect) connect();
 				}
@@ -118,15 +131,19 @@ public class CBSocketer {
 						}
 					}
 
+					for(DisconnectedListener dl : disconnectedListeners) {
+						dl.onDisconnected();
+					}
+
 					if(allowReconnect) connect();
 				}
 
 				public void onMessage(final WebSocket socket, final String msg) {
+					CB_WS_MESSAGES_QUEUE.add(msg);
+
 					for(SocketMessageListener socketMessageListener : socketMessageListeners) {
 						socketMessageListener.onWebSocketMessage(msg);
 					}
-
-					parseMessage(msg);
 				}
 			}
 		);
@@ -134,6 +151,10 @@ public class CBSocketer {
 
 	public void addConnectedListener(ConnectedListener connectedListener) {
 		connectedListeners.add(connectedListener);
+	}
+
+	public void addDisconnectedListener(DisconnectedListener disconnectedListener) {
+		disconnectedListeners.add(disconnectedListener);
 	}
 
 	public void addTradeListener(TradeListener tradeListener) {
@@ -160,100 +181,134 @@ public class CBSocketer {
 		socketMessageListeners.add(socketMessageListener);
 	}
 
-	private void parseMessage(String message) {
-		// Log.i("ON_MSG: "+message);
+	class MessagesParserThread extends Thread {
+		@Override
+		public void run() {
+			String msg;
 
-		if(message.contains("\"type\":\"status\"")) {
-			// Log.i("ON_MSG_STATUS: "+message+"\r\n");
-		}
+			while(true) {
+				try {
+					msg = CB_WS_MESSAGES_QUEUE.take();
 
-		if(message.contains("\"type\":\"open\"")) {
-			// System.out.println("\r\nON_MSG_OPEN: "+message+"\r\n");
-
-			try {
-				m = matchJsonAdapter.fromJson(message);
-
-				for(OrderOpenedListener ool : orderOpenedListeners) {
-					ool.onOrderOpened(m, message);
+					if(msg != null && !msg.isEmpty()) parseMessage(msg);
 				}
-
-				for(OrderEventListener oel : orderEventListeners) {
-					oel.onOrderEvent("open", m, message);
+				catch(Exception e) {
+					e.printStackTrace();
 				}
-			}
-			catch(Exception e) {
-				e.printStackTrace();
 			}
 		}
 
-		if(message.contains("\"type\":\"done\"")) {
-			// System.out.println("\r\nON_MSG_DONE: "+message+"\r\n");
+		private void parseMessage(String message) {
+			Log.i("ON_QUEUE_MSG: "+message);
 
-			try {
-				m = matchJsonAdapter.fromJson(message);
+			if(message.contains("heartbeat")) {
+				// Log.i("ON_MSG_HB: "+message+"\r\n");
 
-				for(OrderDoneListener odl : orderDoneListeners) {
-					odl.onOrderDone(m, message);
+				return;
+			}
+
+			if(message.contains("\"type\":\"status\"")) {
+				// Log.i("ON_MSG_STATUS: "+message+"\r\n");
+
+				return;
+			}
+
+			if(message.contains("\"type\":\"open\"")) {
+				// System.out.println("\r\nON_MSG_OPEN: "+message+"\r\n");
+
+				try {
+					m = matchJsonAdapter.fromJson(message);
+
+					for(OrderOpenedListener ool : orderOpenedListeners) {
+						ool.onOrderOpened(m, message);
+					}
+
+					for(OrderEventListener oel : orderEventListeners) {
+						oel.onOrderEvent("open", m, message);
+					}
+				}
+				catch(Exception e) {
+					e.printStackTrace();
 				}
 
-				for(OrderEventListener oel : orderEventListeners) {
-					oel.onOrderEvent("done", m, message);
+				return;
+			}
+
+			if(message.contains("\"type\":\"done\"")) {
+				System.out.println("\r\nON_MSG_DONE: "+message+"\r\n");
+
+				try {
+					m = matchJsonAdapter.fromJson(message);
+
+					for(OrderDoneListener odl : orderDoneListeners) {
+						odl.onOrderDone(m, message);
+					}
+
+					for(OrderEventListener oel : orderEventListeners) {
+						oel.onOrderEvent("done", m, message);
+					}
 				}
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		/*
-			{
-				"type":			"received",
-				"order_id":		"809da0c5-da95-4e4b-9cc5-c4c08c433d3d",
-				"order_type":	"limit",
-				"size":			"0.18000000",
-				"price":		"9372.91000000",
-				"side":			"buy",
-				"client_oid":	"",
-				"product_id":	"BTC-EUR",
-				"sequence":		5644104570,
-				"time":			"2019-07-19T12:19:09.348000Z"
-			}
-		*/
-		if(message.contains("\"type\":\"received\"")) {
-			// System.out.println("\r\nON_MSG_REC: "+message+"\r\n");
-
-			try {
-				m = matchJsonAdapter.fromJson(message);
-
-				for(OrderReceivedListener orl : orderReceivedListeners) {
-					orl.onOrderReceived(m, message);
+				catch(Exception e) {
+					e.printStackTrace();
 				}
 
-				for(OrderEventListener oel : orderEventListeners) {
-					oel.onOrderEvent("received", m, message);
-				}
+				return;
 			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
 
-		if(message.contains("\"type\":\"match\"")) {
-			// Log.i("\r\nON_MSG: "+message+"\r\n");
+			/*
+				{
+					"type":			"received",
+					"order_id":		"809da0c5-da95-4e4b-9cc5-c4c08c433d3d",
+					"order_type":	"limit",
+					"size":			"0.18000000",
+					"price":		"9372.91000000",
+					"side":			"buy",
+					"client_oid":	"",
+					"product_id":	"BTC-EUR",
+					"sequence":		5644104570,
+					"time":			"2019-07-19T12:19:09.348000Z"
+				}
+			*/
+			if(message.contains("\"type\":\"received\"")) {
+				// System.out.println("\r\nON_MSG_REC: "+message+"\r\n");
 
-			try {
-				m = matchJsonAdapter.fromJson(message);
+				try {
+					m = matchJsonAdapter.fromJson(message);
 
-				for(TradeListener tl : tradeListeners) {
-					tl.onNewTrade(m, m.product_id, message);
+					for(OrderReceivedListener orl : orderReceivedListeners) {
+						orl.onOrderReceived(m, message);
+					}
+
+					for(OrderEventListener oel : orderEventListeners) {
+						oel.onOrderEvent("received", m, message);
+					}
+				}
+				catch(Exception e) {
+					e.printStackTrace();
 				}
 
-				for(OrderEventListener oel : orderEventListeners) {
-					oel.onOrderEvent("match", m, message);
-				}
+				return;
 			}
-			catch(Exception e) {
-				e.printStackTrace();
+
+			if(message.contains("\"type\":\"match\"")) {
+				Log.i("\r\nON_MSG: "+message+"\r\n");
+
+				try {
+					m = matchJsonAdapter.fromJson(message);
+
+					for(TradeListener tl : tradeListeners) {
+						tl.onNewTrade(m, m.product_id, message);
+					}
+
+					for(OrderEventListener oel : orderEventListeners) {
+						oel.onOrderEvent("match", m, message);
+					}
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+
+				return;
 			}
 		}
 	}
