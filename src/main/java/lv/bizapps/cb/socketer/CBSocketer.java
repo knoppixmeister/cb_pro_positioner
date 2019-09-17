@@ -39,8 +39,8 @@ public class CBSocketer {
 
 	private final List<SocketMessageListener> socketMessageListeners	=	new CopyOnWriteArrayList<>();
 
-	private final JsonAdapter<Match> matchJsonAdapter					=	MOSHI.adapter(Match.class);
-	private Match m;
+	private final JsonAdapter<Trade> matchJsonAdapter					=	MOSHI.adapter(Trade.class);
+	private Trade m;
 
 	private int reconnectCnt = -1;
 
