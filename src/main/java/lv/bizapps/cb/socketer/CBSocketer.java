@@ -54,7 +54,8 @@ public class CBSocketer {
 		if(webSocket != null) {
 			webSocket.send(
 				"{\"type\":\"subscribe\",\"channels\":["+
-				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]}"+// BTC-EUR
+				"	{\"name\":\"full\",\"product_ids\":[\""+pair+"\"]},"+// BTC-EUR
+				"	{\"name\":\"heartbeat\",\"product_ids\":[\""+pair+"\"]}"+
 				"]}"
 			);			
 		}
@@ -199,7 +200,7 @@ public class CBSocketer {
 		}
 
 		private void parseMessage(String message) {
-			Log.i("ON_QUEUE_MSG: "+message);
+			// Log.i("ON_QUEUE_MSG: "+message);
 
 			if(message.contains("heartbeat")) {
 				// Log.i("ON_MSG_HB: "+message+"\r\n");
@@ -235,7 +236,7 @@ public class CBSocketer {
 			}
 
 			if(message.contains("\"type\":\"done\"")) {
-				System.out.println("\r\nON_MSG_DONE: "+message+"\r\n");
+				// System.out.println("\r\nON_MSG_DONE: "+message+"\r\n");
 
 				try {
 					m = matchJsonAdapter.fromJson(message);
@@ -291,7 +292,7 @@ public class CBSocketer {
 			}
 
 			if(message.contains("\"type\":\"match\"")) {
-				Log.i("\r\nON_MSG: "+message+"\r\n");
+				Log.i("\r\nON_QUEUE_MSG: "+message+"\r\n");
 
 				try {
 					m = matchJsonAdapter.fromJson(message);
