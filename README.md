@@ -23,4 +23,9 @@ run w/ changed port number (e.g. on 8080):
 
 java -jar -Dserver.port=8080 target/app.jar
 
+-----------------------------------------------------------------------------------------------------------------------------------------
 
+Used libraries:
+- OkHttp - https://github.com/square/okhttp/
+- Moshi - https://github.com/square/moshi
+- JodaTime - https://github.com/JodaOrg/joda-time
