@@ -1,6 +1,5 @@
 package lv.bizapps.cb.rest;
 
-import java.io.IOException;
 import java.time.*;
 import java.util.List;
 import java.util.*;
