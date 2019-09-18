@@ -18,16 +18,16 @@ public class RequestPosition {
 	public String buyOrderType = "limit";// "market"
 
 	@Json(name="buy_amount")
-	public double buyAmount;
+	public String buyAmount = "";
 
 	@Json(name="buy_price")
-	public double buyPrice;
+	public String buyPrice = "";
 
 	@Json(name="set_sell_after_buy")
 	public boolean setSellAfterBuy = true;
 
 	@Json(name="sell_price")
-	public double sellPrice;
+	public String sellPrice = "";
 
 	@Json(name="sell_same_amount")
 	public boolean sellSameAmount = true;
@@ -43,4 +43,6 @@ public class RequestPosition {
 
 	@Json(name="set_untill_accepted_price_step")
 	public double setUntilAcceptedPriceStep = 0.1;
+
+	public String description = "";
 }

@@ -1,6 +1,7 @@
 package lv.bizapps.positioner.utils;
 
 import java.math.*;
+import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,5 +36,18 @@ public class Utils {
 		}
 
 		return "";
+	}
+
+	public static boolean isUUID(String uuid) {
+		if(uuid == null || uuid.isEmpty()) return false;
+
+		try {
+			UUID.fromString(uuid);
+
+	        return true;
+		}
+		catch(Exception e) {
+			return false;
+		}
 	}
 }

@@ -6,6 +6,9 @@ import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import com.squareup.moshi.Moshi;
+
 import lv.bizapps.cb.rest.CBRest;
 import lv.bizapps.cb.rest.Ticker;
 import lv.bizapps.cb.socketer.CBSocketer;
@@ -60,8 +63,6 @@ public class Application {
 		CB_SOCKETER.addTradeListener(new TradeListener() {
 			@Override
 			public void onNewTrade(Trade trade, String rawData) {
-				System.out.println("TR: "+rawData);
-
 				try {
 					CURRENT_PRICE = Utils.round(Double.parseDouble(trade.price), 2);
 				}
@@ -109,6 +110,9 @@ public class Application {
 						case "l":	Log.i("LIST POSITIONS ...");
 									listPositions();
 									break;
+						case "p":	Log.i("SHOW FULL POSITION STATUS/DESCRIPTION ...");
+									showPosition();
+									break;
 						case "q":	
 									break;
 					}
@@ -119,14 +123,40 @@ public class Application {
 		}
 	}
 
+	private static void showPosition() {
+		String posId;
+
+		System.out.print("ENTER POSITION ID: ");
+		posId = SCANNER.nextLine().trim();
+
+		if(!Utils.isUUID(posId)) {
+			Log.i("WRONG POSITION ID(UUID): "+posId);
+			return;
+		}
+
+		Position p = null;
+		for(Position p1 : POSITIONS) {
+			if(p1.uuid.equalsIgnoreCase(posId)) {
+				p = p1;
+				break;
+			}
+		}
+
+		if(p == null) {
+			Log.i("POSITION NOT FOUND: "+posId);
+			return;
+		}
+
+		System.out.println(new Moshi.Builder().add(new JodaDateTimeAdapter()).build().adapter(Position.class).toJson(p)+"\r\n");
+	}
+
 	private static void listPositions() {
 		int idx = 1;
-		if(POSITIONS == null || POSITIONS.isEmpty()) {
-			System.out.println("<NO POSITIONS>");
-		}
+
+		if(POSITIONS == null || POSITIONS.isEmpty()) System.out.println("<NO POSITIONS>");
 		else {
 			for(Position p : POSITIONS) {
-				System.out.println(idx+"] OP: "+p.buyPrice+" | ST: "+p.status);
+				System.out.println(idx+"] ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+(p.sellPrice != null ? p.sellPrice : "<not set>")+" | AM: "+p.amount+" | ST: "+p.status+" | DESC: "+p.description);
 			}
 		}
 	}
