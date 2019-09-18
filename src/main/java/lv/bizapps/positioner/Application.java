@@ -1,15 +1,15 @@
 package lv.bizapps.positioner;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import lv.bizapps.cb.rest.CBRest;
 import lv.bizapps.cb.rest.Ticker;
 import lv.bizapps.cb.socketer.CBSocketer;
+import lv.bizapps.cb.socketer.OrderEventListener;
 import lv.bizapps.cb.socketer.Trade;
 import lv.bizapps.cb.socketer.TradeListener;
 import lv.bizapps.position.Position;
@@ -29,8 +29,6 @@ public class Application {
 	public static void main(String[] args) {	
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				System.out.println("LALLLAL");
-				
 				try {
 					Thread.sleep(200);
 
@@ -72,6 +70,32 @@ public class Application {
 			}
 		});
 
+		CB_SOCKETER.addOrderEventListener(new OrderEventListener() {
+			@Override
+			public void onOrderEvent(String event, Trade orderData, String rawData) {
+				if(POSITIONS == null || POSITIONS.isEmpty()) return;
+
+				for(Position p : POSITIONS) {
+					if(Arrays.asList("PE", "E").contains(p.status)) {
+						;
+					}
+					else if(Arrays.asList("S", "R").contains(p.status)) {
+						if(
+							event.equals("received") &&
+							p.status.equals("S") &&
+							p.buyOrderClientOid.equals(orderData.client_oid)
+						)
+						{
+							int idx = POSITIONS.indexOf(p);
+							if(idx != -1) {
+								POSITIONS.get(idx).status = "R";
+							}
+						}
+					}
+				}
+			}
+		});
+
 		String cmd;
 		try {
 			while(true) {
@@ -102,7 +126,7 @@ public class Application {
 		}
 		else {
 			for(Position p : POSITIONS) {
-				System.out.println(idx+"] "+p.buyPrice);
+				System.out.println(idx+"] OP: "+p.buyPrice+" | ST: "+p.status);
 			}
 		}
 	}
