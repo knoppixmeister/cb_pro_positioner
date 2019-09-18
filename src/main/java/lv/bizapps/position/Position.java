@@ -8,12 +8,11 @@ import org.joda.time.*;
 import com.squareup.moshi.Moshi;
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.socketer.Trade;
-import lv.bizapps.positioner.utils.Utils;
 
 public class Position extends Observable {
 	public final String uuid = UUID.randomUUID().toString();
 
-	public double buySum, buyPrice;
+	public double buyPrice;
 	public double amount;
 	public Double sellPrice;
 	public DateTime createdTime, executedTime, completedTime;
@@ -29,6 +28,11 @@ public class Position extends Observable {
 									//	E - executed,
 									//	C - completed
 
+									// BE - set buy order error
+									// SE - set sell order error
+
+	public String description = "";
+
 	public final String buyOrderClientOid = UUID.randomUUID().toString();
 	public Order buyOrder;
 	public List<Trade> buyTrades = new CopyOnWriteArrayList<>();
@@ -37,13 +41,12 @@ public class Position extends Observable {
 	public Order sellOrder;
 	public List<Trade> sellTrades = new CopyOnWriteArrayList<>();
 
-	public Position(double buySum, double buyPrice, Double sellPrice) {
-		this.buySum			=	buySum;
+	public Position(double buyAmount, double buyPrice, Double sellPrice) {
 		this.buyPrice		=	buyPrice;
 		this.sellPrice		=	sellPrice;
 		this.createdTime	=	new DateTime();
 		this.status			=	"N";
-		this.amount			=	Utils.round(buySum/buyPrice, 8);
+		this.amount			=	buyAmount;
 	}
 
 	public String toString() {

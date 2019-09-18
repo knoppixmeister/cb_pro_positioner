@@ -3,6 +3,8 @@ package lv.bizapps.positioner;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import lv.bizapps.cb.rest.CBRest;
@@ -24,9 +26,11 @@ public class Application {
 
 	public static double CURRENT_PRICE = -1.0;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
+				System.out.println("LALLLAL");
+				
 				try {
 					Thread.sleep(200);
 

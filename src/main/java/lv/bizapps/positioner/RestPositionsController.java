@@ -67,25 +67,22 @@ public class RestPositionsController {
 				public void run() {
 					// submit data to Coinbase TME
 
-					while(true) {
-						Order o = cbr.openOrder(
-							rp.buyOrderType.equals("limit") ? OrderType.LIMIT : OrderType.MARKET,
-							OrderSide.BUY,
-							rp.buyPrice,
-							rp.buyAmount,
-							""
-						);
-						if(o != null) {
-							
-						}
-						else {
-							
+					Position p = new Position(rp.buyAmount, rp.buyPrice, null);
 
-							break;
-						}
+					p.status = "S";
+					Application.POSITIONS.add(p);
 
-						if(!rp.setOrdersUntilAccepted) break;
+					Order o = cbr.openOrder(
+						rp.buyOrderType.equals("limit") ? OrderType.LIMIT : OrderType.MARKET,
+						OrderSide.BUY,
+						rp.buyPrice,
+						rp.buyAmount,
+						p.buyOrderClientOid
+					);
+					if(o != null) {
+						if(o.status.equals("rejected")) p.status = "BE";
 					}
+					else p.status = "BE";
 				}
 			}).start();
 
