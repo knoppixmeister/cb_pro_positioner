@@ -1,5 +1,7 @@
 package lv.bizapps.cb.rest;
 
+import com.squareup.moshi.Moshi;
+
 /*
 	{
 		"id":				"4c058fe8-da79-4afe-ad48-78a1b00feb85",
@@ -24,4 +26,8 @@ package lv.bizapps.cb.rest;
 public class Order {
 	public String id, price, size, product_id, side, type, time_in_force, created_at, fill_fees, filled_size, status, reject_reason;
 	public boolean post_only;
+
+	public String toString() {
+		return new Moshi.Builder().build().adapter(Order.class).toJson(this);
+	}
 }

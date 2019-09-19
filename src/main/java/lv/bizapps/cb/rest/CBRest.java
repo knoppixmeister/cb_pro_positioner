@@ -12,11 +12,11 @@ public class CBRest {
 	public static enum OrderType {
 		LIMIT,
 		MARKET
-	}
+	};
 	public static enum OrderSide {
 		BUY,
 		SELL
-	}
+	};
 
 	public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 

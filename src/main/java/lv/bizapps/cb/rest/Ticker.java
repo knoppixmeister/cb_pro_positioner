@@ -1,5 +1,7 @@
 package lv.bizapps.cb.rest;
 
+import com.squareup.moshi.Moshi;
+
 public class Ticker {
 	/*
 		"trade_id": 4729088,
@@ -12,4 +14,8 @@ public class Ticker {
 	*/
 
 	public String price, size, time;
+
+	public String toString() {
+		return new Moshi.Builder().build().adapter(Ticker.class).toJson(this);
+	}
 }

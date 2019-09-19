@@ -1,5 +1,7 @@
 package lv.bizapps.cb.rest;
 
+import com.squareup.moshi.Moshi;
+
 public class Fill {
 	/*
 		"created_at":	"2019-04-12T20:37:29.783Z",
@@ -20,4 +22,8 @@ public class Fill {
 	public String created_at, product_id, liquidity, price, fee, side, size, order_id;
 	public long trade_id;
 	public boolean settled;
+
+	public String toString() {
+		return new Moshi.Builder().build().adapter(Fill.class).toJson(this);
+	}
 }
