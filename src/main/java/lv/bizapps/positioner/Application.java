@@ -6,18 +6,11 @@ import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import com.squareup.moshi.Moshi;
-
-import lv.bizapps.cb.rest.CBRest;
-import lv.bizapps.cb.rest.Ticker;
-import lv.bizapps.cb.socketer.CBSocketer;
-import lv.bizapps.cb.socketer.OrderEventListener;
-import lv.bizapps.cb.socketer.Trade;
-import lv.bizapps.cb.socketer.TradeListener;
+import lv.bizapps.cb.rest.*;
+import lv.bizapps.cb.socketer.*;
 import lv.bizapps.position.Position;
-import lv.bizapps.positioner.utils.Log;
-import lv.bizapps.positioner.utils.Utils;
+import lv.bizapps.positioner.utils.*;
 
 @SpringBootApplication
 public class Application {
