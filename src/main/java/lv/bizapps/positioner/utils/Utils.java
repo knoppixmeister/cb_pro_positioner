@@ -1,11 +1,9 @@
 package lv.bizapps.positioner.utils;
 
 import java.math.*;
-import java.util.UUID;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
+import java.util.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
 import org.joda.time.*;
 
 public class Utils {

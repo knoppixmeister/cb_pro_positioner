@@ -12,8 +12,11 @@ public class RequestPosition {
 	@Json(name="api_passphrase")
 	public String apiPassphrase = "";
 
-	// -------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 
+	@Json(name = "product_id")
+	public String productId = "BTC-EUR";
+	
 	@Json(name="buy_order_type")
 	public String buyOrderType = "limit";// "market"
 

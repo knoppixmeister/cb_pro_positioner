@@ -3,16 +3,10 @@ package lv.bizapps.positioner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import org.joda.time.DateTime;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import com.squareup.moshi.FromJson;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import com.squareup.moshi.ToJson;
-
 import lv.bizapps.cb.rest.CBRest;
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.rest.CBRest.OrderSide;
@@ -32,7 +26,7 @@ public class RestPositionsController {
 	}
 
 	@GetMapping(value = "/positions/{id}")
-	public ResponseEntity<String> positions(@PathVariable(name="id") String id) {
+	public ResponseEntity<String> positions(@PathVariable(name="id", required = true) String id) {
 		for(Position p : Application.POSITIONS) {
 			if(p.uuid.equalsIgnoreCase(id)) {
 				return new ResponseEntity<String>(new Moshi.Builder().add(new JodaDateTimeAdapter()).build().adapter(Position.class).toJson(p), HttpStatus.NOT_FOUND);
@@ -42,7 +36,7 @@ public class RestPositionsController {
 		return new ResponseEntity<String>("{\"message\":\"position not found\"}", HttpStatus.NOT_FOUND);
 	}
 
-	@PostMapping(value = "/positions")
+	@PostMapping(value="/positions")
 	public ResponseEntity<String> createPosition(@RequestBody String body) {
 		// System.out.println(body);
 		final List<String> ORDER_TYPES = Arrays.asList("limit", "market");
