@@ -1,17 +1,20 @@
 package lv.bizapps.position;
 
 import java.util.List;
-import java.util.Observable;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
+import java.util.concurrent.*;
 import org.joda.time.*;
 import com.squareup.moshi.Json;
 import com.squareup.moshi.Moshi;
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.socketer.Trade;
+import lv.bizapps.positioner.JodaDateTimeAdapter;
 
 public class Position extends Observable {
 	public final String uuid = UUID.randomUUID().toString();
+
+	@Json(name = "product_id")
+	public final String productId = "BTC-EUR";
 
 	@Json(name="buy_price")
 	public double buyPrice;
@@ -78,6 +81,6 @@ public class Position extends Observable {
 	}
 
 	public String toString() {
-		return new Moshi.Builder().build().adapter(Position.class).toJson(this);
+		return new Moshi.Builder().add(new JodaDateTimeAdapter()).build().adapter(Position.class).toJson(this);
 	}
 }
