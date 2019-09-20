@@ -9,7 +9,6 @@ import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
 import lv.bizapps.cb.rest.CBRest.*;
 import lv.bizapps.position.Position;
-import lv.bizapps.positioner.api.API;
 import lv.bizapps.positioner.utils.Utils;
 
 @RestController
