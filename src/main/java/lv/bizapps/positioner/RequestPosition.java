@@ -16,7 +16,7 @@ public class RequestPosition {
 
 	@Json(name = "product_id")
 	public String productId = "BTC-EUR";
-	
+
 	@Json(name="buy_order_type")
 	public String buyOrderType = "limit";// "market"
 

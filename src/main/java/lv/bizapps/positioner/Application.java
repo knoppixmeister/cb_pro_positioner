@@ -72,7 +72,7 @@ public class Application {
 				for(Position p : POSITIONS) {
 					if(Arrays.asList("PE", "E").contains(p.status)) {
 						;
-						
+
 						continue;
 					}
 
@@ -96,6 +96,29 @@ public class Application {
 					}
 
 					if(Arrays.asList("R").contains(p.status.toUpperCase())) {
+						/*
+							{
+								"type":				"match"
+								"trade_id":			21019112
+								"maker_order_id":	"28d26817-5a8a-4464-bbcc-53598067bb58"
+								"taker_order_id":	"d553e0d6-953a-4845-abbf-565ecd3977c5"
+								"side":				"sell"
+								"size":				"0.00112322"
+								"price":			"8970.00000000"
+								"product_id":		"BTC-EUR"
+								"sequence":			5675706208
+								"time":				"2019-07-23T16:46:17.973000Z"
+							}
+						*/
+						if(
+							event.toLowerCase().equals("match")
+						)
+						{
+							;
+
+							continue;
+						}
+
 						if(
 							event.toLowerCase().equals("done") &&
 							orderData.reason.equals("canceled")
@@ -114,6 +137,8 @@ public class Application {
 									POSITIONS.remove(idx);
 								}
 							}
+							
+							continue;
 						}
 					}
 				}

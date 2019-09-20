@@ -46,7 +46,7 @@ public class RestPositionsController {
 	@PostMapping(value="/positions")
 	// body parameter marked as not required here. All checks will be processed below
 	public ResponseEntity<String> createPosition(@RequestBody(required=false) String body) {
-		final List<String> ORDER_TYPES = Arrays.asList("limit", "market");
+		final List<String> ORDER_TYPES = Arrays.asList("limit");// "market"
 
 		if(body == null || body.isEmpty()) {
 			return new ResponseEntity<String>("{\"message\":\"no position description\"}", HttpStatus.BAD_REQUEST);
@@ -118,8 +118,9 @@ public class RestPositionsController {
 
 					Application.POSITIONS.get(pidx).status = "S";
 
+					//rp.buyOrderType.equals("limit") ?
 					final Order o = cbr1.openOrder(
-						rp.buyOrderType.equals("limit") ? OrderType.LIMIT : OrderType.MARKET,
+						OrderType.LIMIT,
 						OrderSide.BUY,
 						Double.parseDouble(rp.buyPrice),
 						Double.parseDouble(rp.buyAmount),
