@@ -136,7 +136,7 @@ public class CBRest {
 	public List<Order> getOrders() {
 		return orders(null);
 	}
-	
+
 	public List<Order> getOrders(String id) {
 		return orders(id);
 	}
@@ -157,7 +157,7 @@ public class CBRest {
 															.addHeader("CB-ACCESS-TIMESTAMP", TS+"")
 															.addHeader("CB-ACCESS-PASSPHRASE", this.apiPassword)
 															.build();
-			final Response response = HTTP_CLIENT.newCall(request).execute();			
+			final Response response = HTTP_CLIENT.newCall(request).execute();
 			if(response != null) {
 				if(response.isSuccessful()) {
 					final String json = response.body().string();
