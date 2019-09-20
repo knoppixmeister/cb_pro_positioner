@@ -126,13 +126,12 @@ public class RestPositionsController {
 						Application.POSITIONS.get(pidx).buyOrderClientOid
 					);
 					if(o != null) {
+						p.buyOrder = o;
+
 						if(o.status.equals("rejected")) {
 							// start set buy order by set_step lower than inital buy_price until will be set
 
 							Application.POSITIONS.get(pidx).status = "BE";
-						}
-						else {
-							p.buyOrder = o;
 						}
 					}
 					else Application.POSITIONS.get(pidx).status = "BE";

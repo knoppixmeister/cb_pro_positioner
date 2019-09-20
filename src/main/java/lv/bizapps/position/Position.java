@@ -3,11 +3,10 @@ package lv.bizapps.position;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
-import org.joda.time.*;
 import com.squareup.moshi.*;
-import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.socketer.Trade;
 import lv.bizapps.positioner.JodaDateTimeAdapter;
+import lv.bizapps.positioner.utils.Utils;
 
 public class Position extends Observable {
 	public final String uuid = UUID.randomUUID().toString();
@@ -24,13 +23,13 @@ public class Position extends Observable {
 	public Double sellPrice;
 
 	@Json(name = "created_time")
-	public DateTime createdTime = new DateTime();
+	public final String createdTime = Utils.isoDateTime();
 
 	@Json(name = "executed_time")
-	public DateTime executedTime = null;
+	public String executedTime = "";
 
 	@Json(name = "completed_time")
-	public DateTime completedTime = null;
+	public String completedTime = "";
 
 	@Json(name="bought_amount")
 	public double boughtAmount = 0.0;
