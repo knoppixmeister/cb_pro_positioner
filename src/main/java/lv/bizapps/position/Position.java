@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 import org.joda.time.*;
-import com.squareup.moshi.Json;
-import com.squareup.moshi.Moshi;
+import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.Order;
 import lv.bizapps.cb.socketer.Trade;
 import lv.bizapps.positioner.JodaDateTimeAdapter;
@@ -18,6 +17,7 @@ public class Position extends Observable {
 
 	@Json(name="buy_price")
 	public double buyPrice;
+
 	public double amount;
 
 	@Json(name = "sell_price")

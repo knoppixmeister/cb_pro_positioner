@@ -5,12 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import lv.bizapps.cb.rest.CBRest;
-import lv.bizapps.cb.rest.Order;
-import lv.bizapps.cb.rest.CBRest.OrderSide;
-import lv.bizapps.cb.rest.CBRest.OrderType;
+import com.squareup.moshi.*;
+import lv.bizapps.cb.rest.*;
+import lv.bizapps.cb.rest.CBRest.*;
 import lv.bizapps.position.Position;
 import lv.bizapps.positioner.api.API;
 
@@ -21,8 +18,14 @@ public class RestPositionsController {
 	private final CBRest cbr = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
 
 	@GetMapping(value = "/positions")
-	public List<Position> positions() {
-		return Application.POSITIONS;
+	public ResponseEntity<String> positions() {
+		return new ResponseEntity<String>(
+			new Moshi.Builder().add(new JodaDateTimeAdapter())
+								.build()
+								.adapter(Types.newParameterizedType(List.class, Position.class))
+								.toJson(Application.POSITIONS),
+			HttpStatus.OK
+		);
 	}
 
 	@GetMapping(value = "/positions/{id}")
@@ -37,8 +40,9 @@ public class RestPositionsController {
 	}
 
 	@PostMapping(value="/positions")
-	public ResponseEntity<String> createPosition(@RequestBody String body) {
-		// System.out.println(body);
+	public ResponseEntity<String> createPosition(@RequestBody(required=false) String body) {// body parameter marked as not required here. All checks will be processed below
+		//System.out.println("SERV_BODY: "+body);
+
 		final List<String> ORDER_TYPES = Arrays.asList("limit", "market");
 
 		if(body == null || body.isEmpty()) {
@@ -84,6 +88,9 @@ public class RestPositionsController {
 				catch(Exception e) {
 					return new ResponseEntity<String>("{\"message\":\"sell price must be a number\"}", HttpStatus.BAD_REQUEST);
 				}
+			}
+			if(!rp.productId.equals("BTC-EUR")) {
+				return new ResponseEntity<String>("{\"message\":\"Invalid product_id\"}", HttpStatus.BAD_REQUEST);
 			}
 
 			System.out.println(	new Moshi.Builder().build().adapter(RequestPosition.class).toJson(rp)	);

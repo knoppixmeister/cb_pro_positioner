@@ -100,13 +100,13 @@ public class Application {
 					cmd = cmd.trim();
 
 					switch(cmd) {
-						case "l":	Log.i("LIST POSITIONS ...");
+						case "l":	System.out.println("LIST POSITIONS ...");
 									listPositions();
 									break;
-						case "p":	Log.i("SHOW FULL POSITION STATUS/DESCRIPTION ...");
+						case "p":	System.out.println("SHOW FULL POSITION STATUS/DESCRIPTION ...");
 									showPosition();
 									break;
-						case "q":	
+						case "q":
 									break;
 					}
 				}
