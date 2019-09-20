@@ -10,12 +10,13 @@ import lv.bizapps.cb.rest.*;
 import lv.bizapps.cb.rest.CBRest.*;
 import lv.bizapps.position.Position;
 import lv.bizapps.positioner.api.API;
+import lv.bizapps.positioner.utils.Utils;
 
 @RestController
 public class RestPositionsController {
 	private JsonAdapter<RequestPosition> rpJsonAdapter = new Moshi.Builder().build().adapter(RequestPosition.class);
 
-	private final CBRest cbr = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
+	//private final CBRest cbr = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
 
 	@GetMapping(value = "/positions")
 	public ResponseEntity<String> positions() {
@@ -29,7 +30,11 @@ public class RestPositionsController {
 	}
 
 	@GetMapping(value = "/positions/{id}")
-	public ResponseEntity<String> positions(@PathVariable(name="id", required = true) String id) {
+	public ResponseEntity<String> positions(@PathVariable(name="id", required=true) String id) {
+		if(id == null || id.isEmpty() || !Utils.isUUID(id)) {
+			return new ResponseEntity<String>("{\"message\":\"Invalid position id\"}", HttpStatus.BAD_REQUEST);
+		}
+
 		for(Position p : Application.POSITIONS) {
 			if(p.uuid.equalsIgnoreCase(id)) {
 				return new ResponseEntity<String>(new Moshi.Builder().add(new JodaDateTimeAdapter()).build().adapter(Position.class).toJson(p), HttpStatus.NOT_FOUND);
@@ -40,9 +45,8 @@ public class RestPositionsController {
 	}
 
 	@PostMapping(value="/positions")
-	public ResponseEntity<String> createPosition(@RequestBody(required=false) String body) {// body parameter marked as not required here. All checks will be processed below
-		//System.out.println("SERV_BODY: "+body);
-
+	// body parameter marked as not required here. All checks will be processed below
+	public ResponseEntity<String> createPosition(@RequestBody(required=false) String body) {
 		final List<String> ORDER_TYPES = Arrays.asList("limit", "market");
 
 		if(body == null || body.isEmpty()) {
@@ -95,6 +99,8 @@ public class RestPositionsController {
 
 			System.out.println(	new Moshi.Builder().build().adapter(RequestPosition.class).toJson(rp)	);
 
+			CBRest cbr1 = new CBRest(rp.apiKey, rp.apiPassphrase, rp.apiSecret);
+
 			Position p = new Position(
 				Double.parseDouble(rp.buyAmount),
 				Double.parseDouble(rp.buyPrice),
@@ -113,7 +119,7 @@ public class RestPositionsController {
 
 					Application.POSITIONS.get(pidx).status = "S";
 
-					final Order o = cbr.openOrder(
+					final Order o = cbr1.openOrder(
 						rp.buyOrderType.equals("limit") ? OrderType.LIMIT : OrderType.MARKET,
 						OrderSide.BUY,
 						Double.parseDouble(rp.buyPrice),
@@ -125,6 +131,9 @@ public class RestPositionsController {
 							// start set buy order by set_step lower than inital buy_price until will be set
 
 							Application.POSITIONS.get(pidx).status = "BE";
+						}
+						else {
+							p.buyOrder = o;
 						}
 					}
 					else Application.POSITIONS.get(pidx).status = "BE";

@@ -57,7 +57,7 @@ public class Position extends Observable {
 	public final String buyOrderClientOid = UUID.randomUUID().toString();
 
 	@Json(name = "buy_order")
-	public Order buyOrder = null;
+	public Object buyOrder = new Object();
 
 	@Json(name = "buy_trades")
 	public List<Trade> buyTrades = new CopyOnWriteArrayList<>();
@@ -66,7 +66,7 @@ public class Position extends Observable {
 	public String sellOrderClientOid = "";
 
 	@Json(name = "sell_order")
-	public Order sellOrder = null;
+	public Object sellOrder = new Object();
 
 	@Json(name = "sell_trades")
 	public List<Trade> sellTrades = new CopyOnWriteArrayList<>();

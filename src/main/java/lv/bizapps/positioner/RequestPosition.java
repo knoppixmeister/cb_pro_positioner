@@ -7,7 +7,7 @@ public class RequestPosition {
 	public String apiKey = "";
 
 	@Json(name="api_secret")
-	public String apiSecrtet = "";
+	public String apiSecret = "";
 
 	@Json(name="api_passphrase")
 	public String apiPassphrase = "";

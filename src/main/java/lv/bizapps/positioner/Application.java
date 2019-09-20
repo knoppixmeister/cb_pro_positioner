@@ -66,23 +66,53 @@ public class Application {
 
 		CB_SOCKETER.addOrderEventListener(new OrderEventListener() {
 			@Override
-			public void onOrderEvent(String event, Trade orderData, String rawData) {
+			public void onOrderEvent(final String event, final Trade orderData, String rawData) {
 				if(POSITIONS == null || POSITIONS.isEmpty()) return;
 
 				for(Position p : POSITIONS) {
 					if(Arrays.asList("PE", "E").contains(p.status)) {
 						;
+						
+						continue;
 					}
-					else if(Arrays.asList("S", "R").contains(p.status)) {
+
+					if(Arrays.asList("S").contains(p.status.toUpperCase())) {
 						if(
 							event.equals("received") &&
-							p.status.equals("S") &&
 							p.buyOrderClientOid.equals(orderData.client_oid)
 						)
 						{
+							System.out.println("AAA: "+orderData.client_oid);
+
 							int idx = POSITIONS.indexOf(p);
 							if(idx != -1) {
+								System.out.println("IDX: "+idx);
+
 								POSITIONS.get(idx).status = "R";
+							}
+						}
+
+						continue;
+					}
+
+					if(Arrays.asList("R").contains(p.status.toUpperCase())) {
+						if(
+							event.toLowerCase().equals("done") &&
+							orderData.reason.equals("canceled")
+						)
+						{
+							if(
+								p.buyOrder != null &&
+								p.buyOrder instanceof Order &&
+								((Order)p.buyOrder).id.equals(orderData.order_id)
+							)
+							{
+								int idx = POSITIONS.indexOf(p);
+								if(idx != -1) {
+									System.out.println("\r\nCANCELLED NEW POS. [ OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | DESC: "+p.description+" ]");
+
+									POSITIONS.remove(idx);
+								}
 							}
 						}
 					}
