@@ -125,7 +125,7 @@ public class CBRest {
 
 		return null;
 	}
-	
+
 	public Order getOrder(String id) {
 		List<Order> orders = orders(id);
 
@@ -144,12 +144,11 @@ public class CBRest {
 	@SuppressWarnings("unchecked")
 	public List<Order> orders(String id) {
 		try {
-			//if(id != null && !id.isEmpty() && !Utils.isUUID(id)) return null;
+			if(id != null && !id.isEmpty() && !Utils.isUUID(id)) return null;
 
 			final long TS = Instant.now().getEpochSecond();
 
-			final String requestPath = "/orders/";
-													//+(id != null && !id.isEmpty() ? "/"+id : "");
+			final String requestPath = "/orders"+(id != null && !id.isEmpty() ? "/"+id : "");
 
 			final Request request = new Request.Builder().url((this.useSanboxApi ? CBRest.SANDBOX_REST_API_BASE_URL : CBRest.REST_API_BASE_URL)+requestPath)
 															.addHeader("CB-ACCESS-KEY", this.apiKey)
