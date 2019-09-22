@@ -12,7 +12,7 @@ public class JodaDateTimeAdapter {
 
 	@ToJson
 	public String jodaDateTimeToJson(DateTime dt) {
-		String tm; 
+		String tm;
 
 		if(dt == null) tm = "";
 		else {
