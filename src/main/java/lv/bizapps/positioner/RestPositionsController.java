@@ -106,6 +106,7 @@ public class RestPositionsController {
 				(rp.sellPrice != null && !rp.sellPrice.isEmpty()) ? Double.valueOf(rp.sellPrice) : null
 			);
 			p.description = rp.description;
+			p.rejectSellPriceReached = rp.rejectSellPriceReached;
 			Application.POSITIONS.add(p);
 
 			new Thread(new Runnable() {

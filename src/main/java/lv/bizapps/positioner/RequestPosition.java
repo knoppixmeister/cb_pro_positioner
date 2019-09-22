@@ -47,5 +47,8 @@ public class RequestPosition {
 	@Json(name="set_untill_accepted_price_step")
 	public double setUntilAcceptedPriceStep = 0.1;
 
+	@Json(name = "reject_sell_price_reached")
+	public boolean rejectSellPriceReached = false;
+
 	public String description = "";
 }

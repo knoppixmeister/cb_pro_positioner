@@ -3,17 +3,19 @@ package lv.bizapps.positioner;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.CopyOnWriteArrayList;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.squareup.moshi.Moshi;
+import java.util.concurrent.*;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
 import lv.bizapps.cb.socketer.*;
-import lv.bizapps.position.Position;
+import lv.bizapps.position.*;
 import lv.bizapps.positioner.utils.*;
 
 @SpringBootApplication
 public class Application {
+	public static final LinkedBlockingQueue<String> WS_EVENTS = new LinkedBlockingQueue<>();
+
 	public static final CBSocketer CB_SOCKETER = new CBSocketer();
 
 	private static final Scanner SCANNER = new Scanner(System.in);
@@ -58,6 +60,25 @@ public class Application {
 			public void onNewTrade(Trade trade, String rawData) {
 				try {
 					CURRENT_PRICE = Utils.round(Double.parseDouble(trade.price), 2);
+
+					for(Position p : POSITIONS) {
+						if(!p.rejectSellPriceReached) continue;
+						else {
+							if(
+								p.sellPrice != null &&
+								Double.parseDouble(trade.price) >= p.sellPrice &&
+								Arrays.asList("S", "R").contains(p.status)
+							)
+							{
+								int idx = POSITIONS.indexOf(p);
+								if(idx != -1) {
+									System.out.println("\r\nREJECTED NEW (S/R) POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | RPSR: "+p.rejectSellPriceReached+" | DESC: "+p.description+" ]");
+
+									POSITIONS.remove(idx);
+								}
+							}
+						}
+					}
 				}
 				catch(Exception e) {
 				}
@@ -132,12 +153,12 @@ public class Application {
 							{
 								int idx = POSITIONS.indexOf(p);
 								if(idx != -1) {
-									System.out.println("\r\nCANCELLED NEW POS. [ OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | DESC: "+p.description+" ]");
+									System.out.println("\r\nCANCELLED NEW POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | DESC: "+p.description+" ]");
 
 									POSITIONS.remove(idx);
 								}
 							}
-							
+
 							continue;
 						}
 					}
@@ -155,6 +176,8 @@ public class Application {
 					cmd = cmd.trim();
 
 					switch(cmd) {
+						case "s":	stat();
+									break;
 						case "l":	System.out.println("LIST POSITIONS ...");
 									listPositions();
 									break;
@@ -169,6 +192,38 @@ public class Application {
 		}
 		catch(Exception e) {
 		}
+	}
+
+	private static void stat() {
+		long subPosCnt = 0;
+		long recPosCnt = 0;
+		long pePosCnt = 0;
+		long exPosCnt  = 0;
+		long cmpPosCnt = 0;
+		long rejCntPos = 0;
+
+		for(Position p : POSITIONS) {
+			if(p.status.equals("S")) ++subPosCnt;
+			if(p.status.equals("R")) ++recPosCnt;
+			if(p.status.equals("PE")) ++pePosCnt;
+			if(p.status.equals("E")) ++exPosCnt;
+			if(p.status.equals("C")) ++cmpPosCnt;
+			if(p.status.equals("R")) ++rejCntPos;
+		}
+
+		System.out.println(
+			"----------------------------------------\r\n"+
+			"CURRENT_PRICE: "+CURRENT_PRICE+"\r\n"+
+			"----------------------------------------\r\n"+
+			"ALL_POSes_CNT: "+Application.POSITIONS.size()+"\r\n"+
+			"SUB_POS_CNT:   "+subPosCnt+"\r\n"+
+			"REC_POS_CNT:   "+recPosCnt+"\r\n"+
+			"PE_POS_CNT:    "+pePosCnt+"\r\n"+
+			"EX_POS_CNT:    "+exPosCnt+"\r\n"+
+			"CMP_POS_CNT:   "+cmpPosCnt+"\r\n"+
+			"REJ_POS_CNT:   "+rejCntPos+"\r\n"+
+			"----------------------------------------\r\n"
+		);
 	}
 
 	private static void showPosition() {
@@ -204,7 +259,7 @@ public class Application {
 		if(POSITIONS == null || POSITIONS.isEmpty()) System.out.println("<NO POSITIONS>");
 		else {
 			for(Position p : POSITIONS) {
-				System.out.println(idx+"] ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+(p.sellPrice != null ? p.sellPrice : "<not set>")+" | AM: "+p.amount+" | ST: "+p.status+" | DESC: "+p.description);
+				System.out.println(idx+"] ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+(p.sellPrice != null ? p.sellPrice : "<not set>")+" | AM: "+p.amount+" | ST: "+p.status+" | RSPR: "+p.rejectSellPriceReached+" | DESC: "+p.description);
 			}
 		}
 	}
