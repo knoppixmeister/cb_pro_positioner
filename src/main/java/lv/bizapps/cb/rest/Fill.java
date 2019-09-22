@@ -1,8 +1,9 @@
 package lv.bizapps.cb.rest;
 
+import java.util.Observable;
 import com.squareup.moshi.Moshi;
 
-public class Fill {
+public class Fill extends Observable {
 	/*
 		"created_at":	"2019-04-12T20:37:29.783Z",
 		"trade_id":		18664599,

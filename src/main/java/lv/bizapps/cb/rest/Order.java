@@ -1,5 +1,7 @@
 package lv.bizapps.cb.rest;
 
+import java.util.Observable;
+
 import com.squareup.moshi.Moshi;
 
 /*
@@ -23,7 +25,7 @@ import com.squareup.moshi.Moshi;
 
 	status = pending, rejected
 */
-public class Order {
+public class Order extends Observable {
 	public String id, price, size, product_id, side, type, time_in_force, created_at, fill_fees, filled_size, status, reject_reason;
 	public boolean post_only;
 
