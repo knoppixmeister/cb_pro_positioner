@@ -70,6 +70,9 @@ public class Position extends Observable {
 	@Json(name = "sell_trades")
 	public List<Trade> sellTrades = new CopyOnWriteArrayList<>();
 
+	@Json(name = "reject_sell_price_reached")
+	public boolean rejectSellPriceReached = false;
+
 	public Position() {
 	}
 
