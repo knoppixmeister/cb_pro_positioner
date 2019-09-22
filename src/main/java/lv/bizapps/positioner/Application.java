@@ -10,6 +10,7 @@ import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
 import lv.bizapps.cb.socketer.*;
 import lv.bizapps.position.*;
+import lv.bizapps.positioner.api.API;
 import lv.bizapps.positioner.utils.*;
 
 @SpringBootApplication
@@ -23,6 +24,8 @@ public class Application {
 	public static final List<Position> POSITIONS = new CopyOnWriteArrayList<>();
 
 	public static double CURRENT_PRICE = -1.0;
+
+	public static CBRest CB_REST_API = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
 
 	public static void main(String[] args) {	
 		Runtime.getRuntime().addShutdownHook(new Thread() {
