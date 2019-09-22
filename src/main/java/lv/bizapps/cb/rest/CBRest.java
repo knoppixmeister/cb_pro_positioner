@@ -278,7 +278,7 @@ public class CBRest {
 				if(response.isSuccessful()) {
 					final String json = response.body().string();
 					if(json != null && !json.isEmpty()) {
-						System.out.println("\r\nRESP_JSON: "+json+"\r\n");
+						// System.out.println("\r\nRESP_JSON: "+json+"\r\n");
 
 						final List<String> res = (List<String>) new Moshi.Builder().build().adapter(Types.newParameterizedType(List.class, String.class)).fromJson(json);
 						if(res != null && res.size() == 1 && res.get(0).equals(id)) result = true;
