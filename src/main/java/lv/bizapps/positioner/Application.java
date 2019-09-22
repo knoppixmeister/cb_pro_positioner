@@ -2,6 +2,8 @@ package lv.bizapps.positioner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Scanner;
 import java.util.concurrent.*;
 import org.springframework.boot.*;
@@ -14,7 +16,7 @@ import lv.bizapps.positioner.api.API;
 import lv.bizapps.positioner.utils.*;
 
 @SpringBootApplication
-public class Application {
+public class Application implements Observer {
 	public static final LinkedBlockingQueue<String> WS_EVENTS = new LinkedBlockingQueue<>();
 
 	public static final CBSocketer CB_SOCKETER = new CBSocketer();
@@ -269,6 +271,13 @@ public class Application {
 			for(Position p : POSITIONS) {
 				System.out.println(idx+"] ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+(p.sellPrice != null ? p.sellPrice : "<not set>")+" | AM: "+p.amount+" | ST: "+p.status+" | RSPR: "+p.rejectSellPriceReached+" | DESC: "+p.description);
 			}
+		}
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if(o != null && o instanceof Position) {
+			
 		}
 	}
 }

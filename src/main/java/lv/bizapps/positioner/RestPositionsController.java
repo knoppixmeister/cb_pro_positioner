@@ -102,6 +102,9 @@ public class RestPositionsController {
 			);
 			p.description = rp.description;
 			p.rejectSellPriceReached = rp.rejectSellPriceReached;
+
+			p.addObserver(new Application());
+
 			Application.POSITIONS.add(p);
 
 			new Thread(new Runnable() {
