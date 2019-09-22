@@ -50,5 +50,8 @@ public class RequestPosition {
 	@Json(name = "reject_sell_price_reached")
 	public boolean rejectSellPriceReached = false;
 
+	@Json(name = "wait_full_buy")
+	public boolean waitFullBuy = true;
+
 	public String description = "";
 }

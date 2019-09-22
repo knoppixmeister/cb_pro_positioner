@@ -45,10 +45,11 @@ public class Position extends Observable {
 									//	R - received,
 									//	PE - partially executed,
 									//	E - executed,
+									//	PC - partially completed,
 									//	C - completed
 
-									// BE - set buy order error
-									// SE - set sell order error
+									//	BE - set buy order error
+									//	SE - set sell order error
 
 	public String description = "";
 
@@ -72,6 +73,9 @@ public class Position extends Observable {
 
 	@Json(name = "reject_sell_price_reached")
 	public boolean rejectSellPriceReached = false;
+
+	@Json(name = "wait_full_buy")
+	public boolean waitFullBuy = true;
 
 	public Position() {
 	}

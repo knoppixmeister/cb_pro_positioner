@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.*;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
+import lv.bizapps.cb.rest.CBRest.OrderSide;
+import lv.bizapps.cb.rest.CBRest.OrderType;
 import lv.bizapps.cb.socketer.*;
 import lv.bizapps.position.*;
 import lv.bizapps.positioner.api.API;
@@ -153,8 +156,38 @@ public class Application implements Observer {
 
 								if(POSITIONS.get(idx).boughtAmount < POSITIONS.get(idx).amount) {
 									POSITIONS.get(idx).status = "PE";
+
+									if(!POSITIONS.get(idx).waitFullBuy) {
+										//set sell order
+									}
 								}
-								else POSITIONS.get(idx).status = "E";
+								else {
+									if(POSITIONS.get(idx).status.equals("PE")) {
+										// cancel partial sell orders
+										if(!POSITIONS.get(idx).waitFullBuy) {
+											;
+										}
+									}
+
+									POSITIONS.get(idx).status = "E";
+
+									POSITIONS.get(idx).sellOrderClientOid = UUID.randomUUID().toString();
+
+									//set sell order for full amount
+									/*
+									Order so = CB_REST_API.openOrder(
+										OrderType.LIMIT,
+										OrderSide.SELL,
+										p.sellPrice,
+										p.amount,
+										POSITIONS.get(idx).sellOrderClientOid
+									);
+									if(so != null) {
+										else POSITIONS.get(idx).status = "E";
+									}
+									else POSITIONS.get(idx).status = "SE";
+									*/
+								}
 							}
 
 							continue;
