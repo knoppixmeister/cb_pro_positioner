@@ -20,7 +20,7 @@ public class CBRest {
 
 	public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
-	public static final String REST_API_BASE_URL 			=	"https://api.pro.coinbase.com";
+	public static final String REST_API_BASE_URL			=	"https://api.pro.coinbase.com";
 	public static final String SANDBOX_REST_API_BASE_URL	=	"https://api-public.sandbox.pro.coinbase.com";
 
 	public boolean useSanboxApi = false;
@@ -251,17 +251,20 @@ public class CBRest {
 		return null;
 	}
 
+	public void cancelOrders() {
+		cancelOrder(null);
+	}
+
 	@SuppressWarnings({ "unchecked", "deprecation" })
 	public boolean cancelOrder(String id) {
 		boolean result = false;
 
-		// if(id == null || id.isEmpty()) return result;
-		// !utils.Utils.isUUID(id)
+		if(id != null && !id.isEmpty() && !Utils.isUUID(id)) return result;
 
 		try {
 			final long TS = Instant.now().getEpochSecond();
 
-			final String requestPath = "/orders/"+id;
+			final String requestPath = "/orders"+(id != null && !id.isEmpty() ? "/"+id : "");
 
 			final Request request = new Request.Builder().url((this.useSanboxApi ? CBRest.SANDBOX_REST_API_BASE_URL : CBRest.REST_API_BASE_URL)+requestPath)
 															.addHeader("CB-ACCESS-KEY", this.apiKey)
@@ -334,5 +337,29 @@ public class CBRest {
 		}
 
 		return null;
+	}
+	
+	public String getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
+	}
+
+	public String getApiSecret() {
+		return apiSecret;
+	}
+
+	public void setApiSecret(String apiSecret) {
+		this.apiSecret = apiSecret;
+	}
+
+	public String getApiPassword() {
+		return apiPassword;
+	}
+
+	public void setApiPassword(String apiPassword) {
+		this.apiPassword = apiPassword;
 	}
 }
