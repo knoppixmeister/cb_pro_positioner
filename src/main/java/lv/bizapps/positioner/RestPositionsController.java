@@ -1,6 +1,5 @@
 package lv.bizapps.positioner;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.*;
@@ -8,14 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
 import lv.bizapps.cb.rest.CBRest.*;
-import lv.bizapps.position.Position;
-import lv.bizapps.positioner.utils.Utils;
+import lv.bizapps.position.*;
+import lv.bizapps.positioner.utils.*;
 
 @RestController
 public class RestPositionsController {
 	private JsonAdapter<RequestPosition> rpJsonAdapter = new Moshi.Builder().build().adapter(RequestPosition.class);
-
-	//private final CBRest cbr = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
 
 	@GetMapping(value = "/positions")
 	public ResponseEntity<String> positions() {
@@ -98,8 +95,6 @@ public class RestPositionsController {
 
 			System.out.println(	new Moshi.Builder().build().adapter(RequestPosition.class).toJson(rp)	);
 
-			CBRest cbr1 = new CBRest(rp.apiKey, rp.apiPassphrase, rp.apiSecret);
-
 			Position p = new Position(
 				Double.parseDouble(rp.buyAmount),
 				Double.parseDouble(rp.buyPrice),
@@ -120,7 +115,7 @@ public class RestPositionsController {
 					Application.POSITIONS.get(pidx).status = "S";
 
 					//rp.buyOrderType.equals("limit") ?
-					final Order o = cbr1.openOrder(
+					final Order o = Application.CB_REST_API.openOrder(
 						OrderType.LIMIT,
 						OrderSide.BUY,
 						Double.parseDouble(rp.buyPrice),
@@ -142,7 +137,7 @@ public class RestPositionsController {
 
 			return new ResponseEntity<String>("{\"position_id\":\""+p.uuid+"\"}", HttpStatus.OK);
 		}
-		catch(IOException e) {
+		catch(Exception e) {
 			e.printStackTrace();
 
 			return new ResponseEntity<String>("{\"message\":\"Invalid position description\"}", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -47,9 +47,7 @@ public class Application {
 
 		SpringApplication.run(Application.class, args);
 
-		CBRest nonAuthCbRest = new CBRest();
-
-		Ticker t = nonAuthCbRest.getTicker("BTC-EUR");
+		Ticker t = CB_REST_API.getTicker("BTC-EUR");
 		if(t != null) {
 			CURRENT_PRICE = Utils.round(Double.parseDouble(t.price), 2);
 		}
@@ -74,10 +72,17 @@ public class Application {
 							)
 							{
 								int idx = POSITIONS.indexOf(p);
-								if(idx != -1) {
-									System.out.println("\r\nREJECTED NEW (S/R) POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | RPSR: "+p.rejectSellPriceReached+" | DESC: "+p.description+" ]");
+								if(
+									idx != -1 &&
+									p.buyOrder != null &&
+									p.buyOrder instanceof Order
+								)
+								{
+									if(CB_REST_API.cancelOrder(((Order)p.buyOrder).id)) {
+										System.out.println("\r\nREJECTED NEW (S/R) POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | RPSR: "+p.rejectSellPriceReached+" | DESC: "+p.description+" ]");
 
-									POSITIONS.remove(idx);
+										POSITIONS.remove(idx);
+									}
 								}
 							}
 						}
