@@ -142,10 +142,20 @@ public class Application implements Observer {
 							}
 						*/
 						if(
-							event.toLowerCase().equals("match")
+							event.toLowerCase().equals("match") &&
+							orderData.maker_order_id != null &&
+							orderData.maker_order_id.equalsIgnoreCase(((Order)p.buyOrder).id)
 						)
 						{
-							;
+							int idx = POSITIONS.indexOf(p);
+							if(idx != -1) {
+								POSITIONS.get(idx).boughtAmount += Double.parseDouble(orderData.size);
+
+								if(POSITIONS.get(idx).boughtAmount < POSITIONS.get(idx).amount) {
+									POSITIONS.get(idx).status = "PE";
+								}
+								else POSITIONS.get(idx).status = "E";
+							}
 
 							continue;
 						}
