@@ -11,8 +11,6 @@ import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
-import lv.bizapps.cb.rest.CBRest.OrderSide;
-import lv.bizapps.cb.rest.CBRest.OrderType;
 import lv.bizapps.cb.socketer.*;
 import lv.bizapps.position.*;
 import lv.bizapps.positioner.api.API;
