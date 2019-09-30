@@ -183,19 +183,21 @@ public class Application implements Observer {
 									POSITIONS.get(idx).sellOrderClientOid = UUID.randomUUID().toString();
 
 									//set sell order for full amount
-									/*
-									Order so = CB_REST_API.openOrder(
-										OrderType.LIMIT,
-										OrderSide.SELL,
-										p.sellPrice,
-										p.amount,
-										POSITIONS.get(idx).sellOrderClientOid
-									);
-									if(so != null) {
-										else POSITIONS.get(idx).status = "E";
+									if(p.sellPrice != null && p.sellPrice > CURRENT_PRICE) {
+										/*
+										Order so = CB_REST_API.openOrder(
+											OrderType.LIMIT,
+											OrderSide.SELL,
+											p.sellPrice,
+											p.amount,
+											POSITIONS.get(idx).sellOrderClientOid
+										);
+										if(so != null) {
+											else POSITIONS.get(idx).status = "E";
+										}
+										else POSITIONS.get(idx).status = "SE";
+										*/
 									}
-									else POSITIONS.get(idx).status = "SE";
-									*/
 								}
 							}
 
