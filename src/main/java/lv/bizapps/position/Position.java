@@ -43,7 +43,7 @@ public class Position extends Observable {
 	public String status = "N";		//	N - new, 
 									//	S - submitted,
 									//	R - received,
-									//	PE - partially executed,
+									//	PE - partiall buy executed,
 									//	E - executed,
 									//	PC - partially completed,
 									//	C - completed

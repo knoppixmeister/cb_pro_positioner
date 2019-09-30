@@ -1,13 +1,13 @@
 package lv.bizapps.positioner;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import com.squareup.moshi.*;
 import lv.bizapps.cb.rest.*;
+import lv.bizapps.cb.rest.CBRest.OrderSide;
+import lv.bizapps.cb.rest.CBRest.OrderType;
 import lv.bizapps.cb.socketer.*;
 import lv.bizapps.position.*;
 import lv.bizapps.positioner.api.API;
@@ -26,6 +26,9 @@ public class Application implements Observer {
 	public static double CURRENT_PRICE = -1.0;
 
 	public static CBRest CB_REST_API = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
+
+	private static final double MIN_BUY_SUM = 10.0;
+	private static final double MIN_PROFIT_NORM = 0.03;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -242,6 +245,8 @@ public class Application implements Observer {
 						case "p":	System.out.println("SHOW FULL POSITION STATUS/DESCRIPTION ...");
 									showPosition();
 									break;
+						case "op":	openPosition();
+									break;
 						case "q":
 									break;
 					}
@@ -249,6 +254,65 @@ public class Application implements Observer {
 			}
 		}
 		catch(Exception e) {
+		}
+	}
+
+	private static void openPosition() {
+		String cmd;
+
+		try {
+			System.out.print("BUY PRICE: ");
+			cmd = SCANNER.nextLine();
+
+			double buyPrice;
+			try {
+				buyPrice = Double.parseDouble(cmd);
+			}
+			catch(Exception e) {
+				Log.i("WRONG PRICE = "+cmd);
+
+				return;
+			}
+
+			final double inc = Calc.calcPriceIncrSum(buyPrice, MIN_BUY_SUM, MIN_PROFIT_NORM, 3000, 0.2, 0.2);
+			final double tp  = Math.ceil(buyPrice+inc);
+
+			/*
+			final Position p = new Position(BUY_SUM, buyPrice, tp);
+
+			if(p.amount < 0.001) {
+				System.out.println("Order amount lower than min. allowed 0.001 BTC. Please increase buy sum at least to "+Utils.round((buyPrice*0.001/1), 2)+" EUR");
+
+				return;
+			}
+
+			System.out.println("\r\nSUM: "+MIN_BUY_SUM+" | OP: "+buyPrice+" | TP: "+tp+" | INC: "+inc+" | AM: "+String.format(Locale.US, "%.8f", p.amount));
+
+			// !!! PLACE IT HERE. NOT AFTER SUBMIT !!!
+			p.status = "S";// S - submitted
+			POSITIONS.add(p);
+
+			final int pIdx = POSITIONS.indexOf(p);
+
+			final Order buyOrder = CB_REST_API.openOrder(OrderType.LIMIT, OrderSide.BUY, buyPrice, p.amount, p.buyOrderClientOid);
+			if(
+				buyOrder != null &&
+				!buyOrder.status.toLowerCase().equals("rejected")
+			)
+			{
+				if(pIdx != -1) POSITIONS.get(pIdx).buyOrder = buyOrder;
+			}
+			else {
+				if(pIdx != -1) {
+					//POSITIONS.indexOf(p);
+
+					POSITIONS.get(pIdx).status = "BE";//buy submit error
+				}
+			}
+			*/
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
