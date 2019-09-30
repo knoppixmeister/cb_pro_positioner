@@ -30,6 +30,9 @@ public class Application implements Observer {
 	private static final double MIN_BUY_SUM = 10.0;
 	private static final double MIN_PROFIT_NORM = 0.03;
 
+	private static final double LIMIT_BUY_PERCENT = 0.2;
+	private static final double LIMIT_SELL_PERCENT = 0.2;
+
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 
@@ -276,7 +279,7 @@ public class Application implements Observer {
 				return;
 			}
 
-			final double inc = Calc.calcPriceIncrSum(buyPrice, MIN_BUY_SUM, MIN_PROFIT_NORM, 3000, 0.2, 0.2);
+			final double inc = Calc.calcPriceIncrSum(buyPrice, MIN_BUY_SUM, MIN_PROFIT_NORM, 3000, LIMIT_BUY_PERCENT, LIMIT_SELL_PERCENT);
 			final double tp  = Math.ceil(buyPrice+inc);
 
 			/*
