@@ -2,10 +2,7 @@ package lv.bizapps.positioner;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
@@ -30,24 +27,7 @@ public class Application implements Observer {
 
 	public static CBRest CB_REST_API = new CBRest(API.API_KEY, API.API_PASSPHRASE, API.API_SECRET);
 
-	public static void main(String[] args) {	
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				try {
-					Thread.sleep(200);
-
-					System.out.println("------------------------------------------------\r\nGET OUT OF APP PROC\r\n-------------------------");
-
-					SCANNER.close();
-
-	        		Thread.sleep(200);
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
+	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 
 		Ticker t = CB_REST_API.getTicker("BTC-EUR");
@@ -61,10 +41,13 @@ public class Application implements Observer {
 
 		CB_SOCKETER.addTradeListener(new TradeListener() {
 			@Override
-			public void onNewTrade(Trade trade, String rawData) {
+			public void onNewTrade(final Trade trade, String rawData) {
+				if(trade == null || trade.price == null) return;
+
 				try {
 					CURRENT_PRICE = Utils.round(Double.parseDouble(trade.price), 2);
 
+					// reject poses w/ status Submitted (S) or Received (R) if sell price reached -------------------------------------------
 					for(Position p : POSITIONS) {
 						if(!p.rejectSellPriceReached) continue;
 						else {
@@ -90,6 +73,7 @@ public class Application implements Observer {
 							}
 						}
 					}
+					// --------------------------------------------------------------------------------------------------------
 				}
 				catch(Exception e) {
 				}
@@ -102,7 +86,7 @@ public class Application implements Observer {
 				if(POSITIONS == null || POSITIONS.isEmpty()) return;
 
 				for(Position p : POSITIONS) {
-					if(Arrays.asList("PE", "E").contains(p.status)) {
+					if(Arrays.asList("PE", "E").contains(p.status.toUpperCase())) {
 						;
 
 						continue;
@@ -145,6 +129,8 @@ public class Application implements Observer {
 						if(
 							event.toLowerCase().equals("match") &&
 							orderData.maker_order_id != null &&
+							p.buyOrder != null &&
+							p.buyOrder instanceof Order &&
 							orderData.maker_order_id.equalsIgnoreCase(((Order)p.buyOrder).id)
 						)
 						{
@@ -155,17 +141,39 @@ public class Application implements Observer {
 								if(POSITIONS.get(idx).boughtAmount < POSITIONS.get(idx).amount) {
 									POSITIONS.get(idx).status = "PE";
 
-									if(!POSITIONS.get(idx).waitFullBuy) {
+									/*
+									if(
+										!POSITIONS.get(idx).waitFullBuy &&
+										POSITIONS.get(idx).sellPrice != null &&
+										POSITIONS.get(idx).sellPrice > CURRENT_PRICE &&
+
+										Double.parseDouble(orderData.size) >= 0.001
+									)
+									{
 										//set sell order
+										Order so = CB_REST_API.openOrder(
+											OrderType.LIMIT,
+											OrderSide.SELL,
+											p.sellPrice,
+											Double.parseDouble(orderData.size),
+											POSITIONS.get(idx).sellOrderClientOid
+										);
+										if(so != null) {
+											POSITIONS.get(idx).status = "PSE";
+										}
+										else POSITIONS.get(idx).status = "SE";
 									}
+									*/
 								}
 								else {
+									/*
 									if(POSITIONS.get(idx).status.equals("PE")) {
 										// cancel partial sell orders
 										if(!POSITIONS.get(idx).waitFullBuy) {
 											;
 										}
 									}
+									*/
 
 									POSITIONS.get(idx).status = "E";
 
@@ -191,26 +199,25 @@ public class Application implements Observer {
 							continue;
 						}
 
-						if(
-							event.toLowerCase().equals("done") &&
-							orderData.reason.equals("canceled")
-						)
+						if(event.toLowerCase().equals("done"))
 						{
-							if(
-								p.buyOrder != null &&
-								p.buyOrder instanceof Order &&
-								((Order)p.buyOrder).id.equals(orderData.order_id)
-							)
-							{
-								int idx = POSITIONS.indexOf(p);
-								if(idx != -1) {
-									System.out.println("\r\nCANCELLED NEW POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | DESC: "+p.description+" ]");
+							if(orderData.reason.equals("canceled")) {
+								if(
+									p.buyOrder != null &&
+									p.buyOrder instanceof Order &&
+									((Order)p.buyOrder).id.equals(orderData.order_id)
+								)
+								{
+									int idx = POSITIONS.indexOf(p);
+									if(idx != -1) {
+										System.out.println("\r\nCANCELLED NEW POS. [ ID: "+p.uuid+" | OP: "+p.buyPrice+" | TP: "+p.sellPrice+" | ST: "+p.status+" | AM: "+p.amount+" | DESC: "+p.description+" ]");
 
-									POSITIONS.remove(idx);
+										POSITIONS.remove(idx);
+									}
 								}
-							}
 
-							continue;
+								continue;
+							}
 						}
 					}
 				}
